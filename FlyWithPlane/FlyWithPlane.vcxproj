@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\cosmi\OneDrive\Desktop\For project\glm-stable\glm;C:\Users\cosmi\OneDrive\Desktop\For project\glew-2.1.0\include;C:\Users\cosmi\OneDrive\Desktop\For project\freeglut\include;C:\Users\cosmi\OneDrive\Desktop\For project\glfw-3.3.4.bin.WIN32\include\GLFW;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\cosmi\OneDrive\Desktop\For project\glfw-3.3.4.bin.WIN32\lib-vc2019;C:\Users\cosmi\OneDrive\Desktop\For project\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Directories\glm-stable\glm;..\Directories\glew-2.1.0\include;..\Directories\freeglut\include;..\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;$(IncludePath)</IncludePath>
+    <LibraryPath>..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;..\Directories\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
