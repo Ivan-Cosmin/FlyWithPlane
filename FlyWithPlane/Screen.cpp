@@ -17,8 +17,11 @@ Screen::Screen()
 	if (glewInit() != GLEW_OK) {
 		throw std::runtime_error("Failed to initialize GLEW");
 	}
-
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	float skylight = 1.0f;
+	float clearR = 0.329f;
+	float clearG = 0.308f;
+	float clearB = 0.702f;
+	glClearColor(clearR, clearG, clearB, 1.0f);
 }
 
 Screen::~Screen()

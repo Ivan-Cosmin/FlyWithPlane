@@ -74,6 +74,10 @@
     <IncludePath>..\Directories\stb-master;..\Directories\glm-stable\glm;..\Directories\glew-2.1.0\include;..\Directories\freeglut\include;..\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;$(IncludePath)</IncludePath>
     <LibraryPath>..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;..\Directories\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\rival\Desktop\FlyWithPlane\Directories\glm-stable\glm;C:\Users\rival\Desktop\FlyWithPlane\Directories\freeglut\include;C:\Users\rival\Desktop\FlyWithPlane\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;C:\Users\rival\Desktop\FlyWithPlane\Directories\stb-master;C:\Users\rival\Desktop\FlyWithPlane\Directories\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\rival\Desktop\School - Year2 Sem1\G3D\glew-2.1.0\lib\Release\Win32;C:\Users\rival\Desktop\FlyWithPlane\Directories\freeglut\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
