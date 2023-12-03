@@ -47,6 +47,14 @@ ShaderManager::ShaderManager(const char* vertexShaderSource, const char* fragmen
 
 ShaderManager::~ShaderManager() {
 	// Distrugă programul OpenGL
+	glUseProgram(0);
+
+	glDetachShader(programID, vertexShaderID);
+	glDetachShader(programID, fragmentShaderID);
+
+	glDeleteShader(fragmentShaderID);
+	glDeleteShader(vertexShaderID);
+
 	glDeleteProgram(programID);
 }
 
