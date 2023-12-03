@@ -1,5 +1,10 @@
 ﻿#pragma once
-#include "Screen.h"
+#include <GLM.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+#include <GL/glew.h>
+#include <glfw3.h>
+#include <iostream>
 
 class ShaderManager {
 public:

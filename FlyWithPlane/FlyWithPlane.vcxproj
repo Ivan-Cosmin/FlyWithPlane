@@ -136,11 +136,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FlyWithPlane.cpp" />
-    <ClCompile Include="Screen.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Screen.h" />
     <ClInclude Include="ShaderManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
