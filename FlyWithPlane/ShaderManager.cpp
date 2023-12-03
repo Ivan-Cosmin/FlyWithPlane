@@ -62,6 +62,16 @@ GLuint ShaderManager::getProgramID() const {
 	return programID;
 }
 
+GLuint ShaderManager::getVertexShaderID() const
+{
+	return vertexShaderID;
+}
+
+GLuint ShaderManager::getFragmentShaderID() const
+{
+	return fragmentShaderID;
+}
+
 void ShaderManager::compileShader(GLuint shaderID, const char* shaderSource) {
 	// Compilează shader-ul
 	glShaderSource(shaderID, 1, &shaderSource, NULL);

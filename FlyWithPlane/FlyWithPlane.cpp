@@ -169,8 +169,9 @@ void darkenBackgroundColor(GLFWwindow* window)
 	}
 }
 
-int main() {
 
+int main() {
+	
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -189,7 +190,11 @@ int main() {
 	glewInit();
 
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	glClearColor(clearR, clearG, clearB, 1.0f);
+	CreateVBO();
+	ShaderManager shader(VertexShader, FragmentShader);
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	while (!glfwWindowShouldClose(window)) 
 	{

@@ -13,8 +13,13 @@ public:
 
 	GLuint getProgramID() const;
 
+	GLuint getVertexShaderID() const;
+	GLuint getFragmentShaderID() const;
+
 private:
-	GLuint programID, vertexShaderID, fragmentShaderID;
+	GLuint programID;
+
+	GLuint vertexShaderID, fragmentShaderID;
 
 	// Metode pentru încărcarea, compilarea și linkarea shaderelor
 	void compileShader(GLuint shaderID, const char* shaderSource);
