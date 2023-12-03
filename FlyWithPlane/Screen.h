@@ -18,12 +18,12 @@ public:
 	Screen();
 	~Screen();
 	void run();
-	void daylightChange();
+	void darkenBackgroundColor();
 
 private:
 	GLFWwindow* window;
 	void render();
-
+	float skylight = 1.0f;
 	float clearR = 0.309f;
 	float clearG = 0.268f;
 	float clearB = 0.552f;

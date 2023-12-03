@@ -1,5 +1,6 @@
 #include "Screen.h"
-
+#include <chrono>
+#include <thread>
 
 Screen::Screen()
 {
@@ -35,18 +36,33 @@ void Screen::run()
 		glfwPollEvents();
 	}
 }
-void Screen::daylightChange()
+void Screen::darkenBackgroundColor()
 {
 	const float decreaseRate = 0.01f;
+	const std::chrono::milliseconds updateTime(300);
 	
-	float skylight = 1.0f;
 	while (skylight > 0.0f) {
 		
 		clearR -= decreaseRate;
 		clearG -= decreaseRate;
 		clearB -= decreaseRate;
 
-		//next here
+		// Ensure values are within valid range
+		clearR = std::max(0.021f, clearR);
+		clearG = std::max(0.0f, clearG);
+		clearB = std::max(0.06f, clearB);
+
+
+		// Update clear color
+		glClearColor(clearR, clearG, clearB, 1.0f);
+
+		// Render and swap buffers
+		render();
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+
+		// Sleep for the specified update time
+		std::this_thread::sleep_for(updateTime);
 
 		skylight -= decreaseRate;
 	}
