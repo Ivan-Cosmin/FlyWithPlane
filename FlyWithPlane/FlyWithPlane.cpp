@@ -38,6 +38,7 @@ int main() {
 		Screen app;
 		app.run();
 		ShaderManager shader(VertexShader,FragmentShader);
+		app.darkenBackgroundColor();
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Exception: " << e.what() << std::endl;

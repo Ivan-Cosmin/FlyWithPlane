@@ -1,5 +1,6 @@
 #include "Screen.h"
 
+
 Screen::Screen()
 {
 	if (!glfwInit()) {
@@ -17,10 +18,7 @@ Screen::Screen()
 	if (glewInit() != GLEW_OK) {
 		throw std::runtime_error("Failed to initialize GLEW");
 	}
-	float skylight = 1.0f;
-	float clearR = 0.329f;
-	float clearG = 0.308f;
-	float clearB = 0.702f;
+	
 	glClearColor(clearR, clearG, clearB, 1.0f);
 }
 
@@ -35,6 +33,22 @@ void Screen::run()
 		render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+	}
+}
+void Screen::daylightChange()
+{
+	const float decreaseRate = 0.01f;
+	
+	float skylight = 1.0f;
+	while (skylight > 0.0f) {
+		
+		clearR -= decreaseRate;
+		clearG -= decreaseRate;
+		clearB -= decreaseRate;
+
+		//next here
+
+		skylight -= decreaseRate;
 	}
 }
 
