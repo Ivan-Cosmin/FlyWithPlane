@@ -191,7 +191,7 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(clearR, clearG, clearB, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	CreateVBO();
 	ShaderManager shader(VertexShader, FragmentShader);
 	
