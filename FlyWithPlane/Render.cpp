@@ -1,4 +1,5 @@
 #include "Render.h"
+#include "Shader.h"
 
 void Render::RenderVertices(const float* vertices, unsigned int& VAO, unsigned int& VBO)
 {
