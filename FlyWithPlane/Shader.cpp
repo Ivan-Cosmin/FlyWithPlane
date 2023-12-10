@@ -1,8 +1,4 @@
 #include "Shader.h"
-#include <sstream>
-#include <GL/glew.h>
-#include <iostream>
-#include <fstream>
 
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
@@ -44,6 +40,11 @@ void Shader::SetMat4(const std::string& name, const glm::mat4& mat) const
 void Shader::SetFloat(const std::string& name, const float& value) const
 {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::SetInt(const std::string& name, int value) const
+{
+	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::Init(const char* vertexPath, const char* fragmentPath)

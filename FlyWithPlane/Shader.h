@@ -1,5 +1,9 @@
 #pragma once
 #include <glm.hpp>
+#include <sstream>
+#include <GL/glew.h>
+#include <iostream>
+#include <fstream>
 
 class Shader
 {
@@ -23,7 +27,8 @@ public:
 	void SetVec3(const std::string& name, float x, float y, float z) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 	void SetFloat(const std::string& name, const float& value) const;
-
+	void SetInt(const std::string& name, int value) const;
+	
 private:
 	void Init(const char* vertexPath, const char* fragmentPath);
 

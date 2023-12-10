@@ -1,5 +1,5 @@
 #include "Render.h"
-#include "Shader.h"
+
 
 void Render::RenderVertices(const float* vertices, unsigned int& VAO, unsigned int& VBO)
 {
@@ -19,32 +19,44 @@ void Render::RenderVertices(const float* vertices, unsigned int& VAO, unsigned i
 	}
 }
 
-void Render::RenderFloor(float* vertices, unsigned int& planeVAO, unsigned int& planeVBO)
+void Render::RenderFloor()
 {
+	unsigned int planeVBO = 0;
+	unsigned int planeVAO = 0;
 	if (planeVAO == 0)
 	{
+		float vertices[] = {
+			// positions            // normals         // texcoords
+			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+
+			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+			25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+		};
 		RenderVertices(vertices, planeVAO, planeVBO);
 	}
 	glBindVertexArray(planeVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-//void Render::RenderScene(const Shader& shader)
-//{
-//	glm::vec3 cubePositions[] = {
-//	glm::vec3(3.0f,  2.0f,   0.0f),
-//	glm::vec3(0.0f,  3.0f,  -5.0f),
-//	glm::vec3(-3.0f, 2.0f,  -5.0f),
-//	};
-//
-//	// floor
-//	glm::mat4 model;
-//	shader.SetMat4("model", model);
-//	renderFloor();
-//
-//	// cube
-//	model = glm::mat4();
-//	model = glm::translate(model, glm::vec3(0.0f, 1.75f, 0.0));
-//	model = glm::scale(model, glm::vec3(0.75f));
-//	shader.SetMat4("model", model);
-//}
+void Render::RenderScene(const Shader& shader)
+{
+	// floor
+	unsigned int planeVBO=0;
+	unsigned int planeVAO=0;
+		float planeVertices[] = {
+			// positions            // normals         // texcoords
+			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+
+			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+			25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+		};
+	glm::mat4 model;
+	shader.SetMat4("model", model);
+	RenderFloor();
+}

@@ -1,17 +1,16 @@
-﻿#include "ShaderManager.h"
+﻿#include "Shader.h"
 #include "Render.h"
 #include <GLM.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
-#include <GL/glew.h>
 #include <glfw3.h>
-#include <iostream>
 #include <chrono>
 #include <thread>
 
 #pragma comment (lib, "glfw3dll.lib")
 #pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "OpenGL32.lib")
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -19,156 +18,44 @@
 static const unsigned int SCR_WIDTH = 1600;
 static const unsigned int SCR_HEIGHT = 900;
 
-
-const GLchar* VertexShader =
-{
-	"#version 400\n"\
-	"layout(location=0) in vec4 in_Position;\n"\
-	"layout(location=1) in vec4 in_Color;\n"\
-	"out vec4 ex_Color;\n"\
-	"uniform mat4 WorldMatrix;\n"\
-	"void main()\n"\
-	"{\n"\
-	"  gl_Position = WorldMatrix * in_Position;\n"\
-	"  ex_Color = in_Color;\n"\
-	"}\n"
-};
-// Shader-ul de fragment / Fragment shader (este privit ca un sir de caractere)
-const GLchar* FragmentShader =
-{
-	"#version 400\n"\
-	"in vec4 ex_Color;\n"\
-	"out vec4 out_Color;\n"\
-	"void main()\n"\
-	"{\n"\
-	"  out_Color = ex_Color;\n"\
-	"}\n"
-};
-
-GLuint VAO, VBO, EBO, ColorBufferID, VertexShaderID, FragmentShaderID, ProgramID;
-GLuint WorldMatrixLocation;
 // timing
 double deltaTime = 0.0f;	// time between current frame and last frame
 double lastFrame = 0.0f;
 
-float skylight = 1.0f;
-float clearR = 0.309f;
-float clearG = 0.268f;
-float clearB = 0.552f;
+//float skylight = 1.0f;
+//float clearR = 0.309f;
+//float clearG = 0.268f;
+//float clearB = 0.552f;
 
-enum EMovementType {
-	ENone,
-	EHorizontal,
-	EVertical,
-	ECircularClockWise,
-	ECircularCounterClockWise,
-	ERotation,
-	EScale
-};
-
-void CreateVBO()
-{
-	float vertices[] =
-	{
-		// Front face
-		-0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // Vertex 0
-		 0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Vertex 1
-		 0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, // Vertex 2
-		-0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f, // Vertex 3
-
-		// Back face
-		-0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Vertex 4
-		 0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f, // Vertex 5
-		 0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Vertex 6
-		-0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Vertex 7
-	};
-
-	unsigned int indices[] =
-	{
-		// Front face
-		0, 1, 2,
-		2, 3, 0,
-
-		// Right face
-		1, 5, 6,
-		6, 2, 1,
-
-		// Back face
-		4, 5, 6,
-		6, 7, 4,
-
-		// Left face
-		0, 4, 7,
-		7, 3, 0,
-
-		// Top face
-		3, 2, 6,
-		6, 7, 3,
-
-		// Bottom face
-		0, 1, 5,
-		5, 4, 0
-	};
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	// texture coord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-}
-
-void DestroyVBO()
-{
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-}
-
-void darkenBackgroundColor(GLFWwindow* window)
-{
-	const float decreaseRate = 0.01f;
-	const std::chrono::milliseconds updateTime(300);
-
-	while (skylight > 0.0f) {
-
-		clearR -= decreaseRate;
-		clearG -= decreaseRate;
-		clearB -= decreaseRate;
-
-		// Ensure values are within valid range
-		clearR = std::max(0.021f, clearR);
-		clearG = std::max(0.0f, clearG);
-		clearB = std::max(0.06f, clearB);
-
-
-		// Update clear color
-		glClearColor(clearR, clearG, clearB, 1.0f);
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
-		// Sleep for the specified update time
-		std::this_thread::sleep_for(updateTime);
-
-		skylight -= decreaseRate;
-	}
-}
+//void darkenBackgroundColor(GLFWwindow* window)
+//{
+//	const float decreaseRate = 0.01f;
+//	const std::chrono::milliseconds updateTime(300);
+//
+//	while (skylight > 0.0f) {
+//
+//		clearR -= decreaseRate;
+//		clearG -= decreaseRate;
+//		clearB -= decreaseRate;
+//
+//		// Ensure values are within valid range
+//		clearR = std::max(0.021f, clearR);
+//		clearG = std::max(0.0f, clearG);
+//		clearB = std::max(0.06f, clearB);
+//
+//
+//		// Update clear color
+//		glClearColor(clearR, clearG, clearB, 1.0f);
+//
+//		glfwSwapBuffers(window);
+//		glfwPollEvents();
+//
+//		// Sleep for the specified update time
+//		std::this_thread::sleep_for(updateTime);
+//
+//		skylight -= decreaseRate;
+//	}
+//}
 
 unsigned int CreateTexture(const std::string& strTexturePath)
 {
@@ -216,7 +103,8 @@ int main(int argc, char** argv) {
 		strExePath = strFullExeFileName.substr(0, last_slash_idx);
 	}
 
-
+	Render render;
+	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -233,19 +121,30 @@ int main(int argc, char** argv) {
 	glfwMakeContextCurrent(window);
 	glewInit();
 
+	// configure global opengl state
+	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
+
+	// build and compile shaders
+	// -------------------------
+	Shader shadowMappingShader("ShadowMapping.vs", "ShadowMapping.fs");
+	Shader shadowMappingDepthShader("ShadowMappingDepth.vs", "ShadowMappingDepth.fs");
 
 	// load textures
 	// -------------
 	unsigned int floorTexture = CreateTexture(strExePath + "\\Floor.png");
+
+	const unsigned int SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
 	unsigned int depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 	// create depth texture
 	unsigned int depthMap;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -257,27 +156,80 @@ int main(int argc, char** argv) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	ShaderManager shader(VertexShader, FragmentShader);
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// shader configuration
+	// --------------------
+	shadowMappingShader.Use();
+	shadowMappingShader.SetInt("diffuseTexture", 0);
+	shadowMappingShader.SetInt("shadowMap", 1);
+
+	// lighting info
+	// -------------
+	glm::vec3 lightPos(-2.0f, 7.0f, -1.0f);
+
+	glEnable(GL_CULL_FACE);
+
 	while (!glfwWindowShouldClose(window)) 
 	{
+		// per-frame time logic
+		// --------------------
+		float currentFrame = (float)glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		//render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//darkenBackgroundColor(window);
 
+		lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
+
+	// 1. render depth of scene to texture (from light's perspective)
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 7.5f;
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+
+		// render scene from light's point of view
+		shadowMappingDepthShader.Use();
+		shadowMappingDepthShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
+		render.RenderScene(shadowMappingDepthShader);
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		// reset viewport
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// 2. render scene as normal using the generated depth/shadow map 
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shadowMappingShader.Use();
+		glm::mat4 projection;
+		glm::mat4 view;
+		shadowMappingShader.SetMat4("projection", projection);
+		shadowMappingShader.SetMat4("view", view);
+		// set light uniforms
+		shadowMappingShader.SetVec3("viewPos", glm::vec3(0.0, 1.0, 3.0));
+		shadowMappingShader.SetVec3("lightPos", lightPos);
+		shadowMappingShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glDisable(GL_CULL_FACE);
+		render.RenderScene(shadowMappingShader);
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
