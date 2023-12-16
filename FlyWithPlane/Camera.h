@@ -1,5 +1,7 @@
 #pragma once
-#include "Shader.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <GL/glew.h>
 
 enum ECameraMovementType
 {

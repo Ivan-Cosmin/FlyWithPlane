@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\Directories\stb-master;..\Directories\glm-stable\glm;..\Directories\glew-2.1.0\include;..\Directories\freeglut\include;..\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;$(IncludePath)</IncludePath>
-    <LibraryPath>..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;..\Directories\glew-2.1.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Directories\glew-2.1.0\include;..\Directories\glm-stable\glm;..\Directories\freeglut\include;..\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;..\Directories\stb-master;..\Directories\Assimp.3.0.0\build\native\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\Directories\glew-2.1.0\lib\Release\Win32;..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;D:\Faculta\GitHub\FlyWithPlane\Directories\Assimp.3.0.0\build\native\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\rival\Desktop\FlyWithPlane\Directories\glm-stable\glm;C:\Users\rival\Desktop\FlyWithPlane\Directories\freeglut\include;C:\Users\rival\Desktop\FlyWithPlane\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;C:\Users\rival\Desktop\FlyWithPlane\Directories\stb-master;C:\Users\rival\Desktop\FlyWithPlane\Directories\glew-2.1.0\include;$(IncludePath)</IncludePath>
@@ -88,6 +88,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -138,20 +139,16 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FlyWithPlane.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Render.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Render.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ShadowMapping.fs" />
-    <None Include="ShadowMapping.vs" />
-    <None Include="ShadowMappingDepth.fs" />
-    <None Include="ShadowMappingDepth.vs" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
