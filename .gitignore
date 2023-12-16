@@ -399,4 +399,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Ignora toate fisierele obiect (.obj) din directorul "Models"
-Models/**/*.obj
+!Models/**/*.obj
