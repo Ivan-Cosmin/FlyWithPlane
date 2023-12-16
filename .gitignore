@@ -398,5 +398,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Ignora toate fisierele obiect (.obj) din directorul "models"
-FlyWithPlane/Models/**/*.obj
+# Ignora toate fisierele obiect (.obj) din directorul "Models"
+Models/**/*.obj
