@@ -167,8 +167,8 @@ int main()
 	std::string objFileName = (currentPath + "\\Models\\CylinderProject.obj");
 	Model objModel(objFileName, false);
 
-	std::string piratObjFileName = (currentPath + "\\Models\\Pirat\\Pirat.obj");
-	Model piratObjModel(piratObjFileName, false);
+	std::string PlaneObjFileName = (currentPath + "\\Models\\Plane\\Plane.obj");
+	Model PlaneObjModel(PlaneObjFileName, false);
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -202,7 +202,7 @@ int main()
 
 		glm::mat4 piratModel = glm::scale(glm::mat4(1.0), glm::vec3(1.f));
 		lightingShader.SetMat4("model", piratModel);
-		piratObjModel.Draw(lightingShader);
+		PlaneObjModel.Draw(lightingShader);
 
 		// also draw the lamp object
 		lampShader.Use();
