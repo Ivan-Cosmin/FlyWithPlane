@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\Directories\glew-2.1.0\include;..\Directories\glm-stable\glm;..\Directories\freeglut\include;..\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;..\Directories\stb-master;..\Directories\Assimp.3.0.0\build\native\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\Directories\glew-2.1.0\lib\Release\Win32;..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;D:\Faculta\GitHub\FlyWithPlane\Directories\Assimp.3.0.0\build\native\lib\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\Directories\glew-2.1.0\lib\Win32;..\Directories\glfw-3.3.4.bin.WIN32\lib-vc2019;..\Directories\Assimp.3.0.0\build\native\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\rival\Desktop\FlyWithPlane\Directories\glm-stable\glm;C:\Users\rival\Desktop\FlyWithPlane\Directories\freeglut\include;C:\Users\rival\Desktop\FlyWithPlane\Directories\glfw-3.3.4.bin.WIN32\include\GLFW;C:\Users\rival\Desktop\FlyWithPlane\Directories\stb-master;C:\Users\rival\Desktop\FlyWithPlane\Directories\glew-2.1.0\include;$(IncludePath)</IncludePath>
