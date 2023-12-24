@@ -50,12 +50,14 @@ protected:
     int height;
     bool isPerspective;
 
+public:
     glm::vec3 position;
     glm::vec3 forward;
     glm::vec3 right;
     glm::vec3 up;
     glm::vec3 worldUp;
 
+protected:
     // Euler Angles
     float yaw;
     float pitch;

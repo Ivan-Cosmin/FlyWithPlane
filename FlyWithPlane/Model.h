@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
+unsigned int LoadSkybox(std::vector<std::string> faces);
 class Model
 {
 public:

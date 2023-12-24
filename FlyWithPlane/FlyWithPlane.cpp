@@ -156,7 +156,7 @@ int main()
 	skyboxShader.Use();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
-	
+
 	std::string PlaneObjFileName = (currentPath + "\\Models\\Plane\\Plane.obj");
 	Model PlaneObjModel(PlaneObjFileName, false);
 
@@ -172,6 +172,8 @@ int main()
 		currentPath + "\\Models\\skybox\\back.jpg"
 	};
 
+	// Creates the cubemap texture object
+	unsigned int cubemapTexture = LoadSkybox(facesCubemap);
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -197,8 +199,25 @@ int main()
 		glm::mat4 planeModel = glm::scale(glm::mat4(1.0), glm::vec3(1.f));
 		lightingShader.SetMat4("model", planeModel);
 		PlaneObjModel.Draw(lightingShader);
-		
+
 		glBindVertexArray(lightVAO);
+
+		//render skybox
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.Use();
+		glm::mat4 view = glm::mat4(glm::mat3(pCamera->GetViewMatrix()));
+		glm::mat4 projection = pCamera->GetProjectionMatrix();
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glDepthFunc(GL_LESS);
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -206,7 +225,7 @@ int main()
 	}
 
 	Cleanup();
-	
+
 	glDeleteVertexArrays(1, &lightVAO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources
