@@ -129,10 +129,10 @@ int main()
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
+
 	// Create camera
 	pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
 
-	glm::vec3 lightPos(0.0f, 2.0f, 1.0f);
 
 	wchar_t buffer[MAX_PATH];
 	GetCurrentDirectoryW(MAX_PATH, buffer);
@@ -144,13 +144,34 @@ int main()
 	std::string currentPath = converter.to_bytes(wscurrentPath);
 
 	Shader lightingShader((currentPath + "\\Shaders\\PhongLight.vs").c_str(), (currentPath + "\\Shaders\\PhongLight.fs").c_str());
-	Shader lampShader((currentPath + "\\Shaders\\Lamp.vs").c_str(), (currentPath + "\\Shaders\\Lamp.fs").c_str());
+	Shader skyboxShader((currentPath + "\\Shaders\\skybox.vs").c_str(), (currentPath + "\\Shaders\\skybox.fs").c_str());
 
-	std::string objFileName = (currentPath + "\\Models\\CylinderProject.obj");
-	Model objModel(objFileName, false);
+	// Take care of all the light related things
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightPos = glm::vec3(0.5f, 5.0f, 0.5f);
 
+	lightingShader.Use();
+	glUniform4f(glGetUniformLocation(lightingShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(lightingShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	skyboxShader.Use();
+	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+
+	
 	std::string PlaneObjFileName = (currentPath + "\\Models\\Plane\\Plane.obj");
 	Model PlaneObjModel(PlaneObjFileName, false);
+
+
+	// All the faces of the cubemap (make sure they are in this exact order)
+	std::vector<std::string> facesCubemap =
+	{
+		currentPath + "\\Models\\skybox\\right.jpg",
+		currentPath + "\\Models\\skybox\\left.jpg",
+		currentPath + "\\Models\\skybox\\top.jpg",
+		currentPath + "\\Models\\skybox\\bottom.jpg",
+		currentPath + "\\Models\\skybox\\front.jpg",
+		currentPath + "\\Models\\skybox\\back.jpg"
+	};
+
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -161,12 +182,7 @@ int main()
 
 		// input
 		processInput(window);
-
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		lightPos.x = 0.5 * cos(glfwGetTime());
-		lightPos.z = 0.5 * sin(glfwGetTime());
 
 		lightingShader.Use();
 		lightingShader.SetVec3("objectColor", 0.5f, 1.0f, 0.31f);
@@ -177,25 +193,12 @@ int main()
 		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
 		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
 
-		// render the model
-		//glm::mat4 model = glm::scale(glm::mat4(1.0), glm::vec3(0.001f));
-		//lightingShader.setMat4("model", model);
-		//objModel.Draw(lightingShader);
-
-		glm::mat4 piratModel = glm::scale(glm::mat4(1.0), glm::vec3(1.f));
-		lightingShader.SetMat4("model", piratModel);
+		//render plane
+		glm::mat4 planeModel = glm::scale(glm::mat4(1.0), glm::vec3(1.f));
+		lightingShader.SetMat4("model", planeModel);
 		PlaneObjModel.Draw(lightingShader);
-
-		// also draw the lamp object
-		lampShader.Use();
-		lampShader.SetMat4("projection", pCamera->GetProjectionMatrix());
-		lampShader.SetMat4("view", pCamera->GetViewMatrix());
-		glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
-		lightModel = glm::scale(lightModel, glm::vec3(0.05f)); // a smaller cube
-		lampShader.SetMat4("model", lightModel);
-
+		
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -225,9 +228,9 @@ void processInput(GLFWwindow* window)
 		pCamera->ProcessKeyboard(LEFT, (float)deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		pCamera->ProcessKeyboard(RIGHT, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		pCamera->ProcessKeyboard(UP, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		pCamera->ProcessKeyboard(DOWN, (float)deltaTime);
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
@@ -238,12 +241,8 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
 	pCamera->Reshape(width, height);
 }
 

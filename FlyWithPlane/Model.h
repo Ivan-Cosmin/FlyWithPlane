@@ -8,7 +8,6 @@
 #include <assimp/postprocess.h>
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
-
 class Model
 {
 public:
@@ -18,7 +17,6 @@ public:
 	std::string directory;
 	bool gammaCorrection;
 
-	// constructor, expects a filepath to a 3D model.
 	Model(std::string const& path, bool bSmoothNormals, bool gamma = false);
 
 	// draws the model, and thus all its meshes

@@ -51,4 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Models\Plane\Plane.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
