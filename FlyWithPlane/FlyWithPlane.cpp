@@ -164,12 +164,12 @@ int main()
 	// All the faces of the cubemap (make sure they are in this exact order)
 	std::vector<std::string> facesCubemap =
 	{
-		currentPath + "\\Models\\skybox\\right.jpg",
-		currentPath + "\\Models\\skybox\\left.jpg",
-		currentPath + "\\Models\\skybox\\top.jpg",
-		currentPath + "\\Models\\skybox\\bottom.jpg",
-		currentPath + "\\Models\\skybox\\front.jpg",
-		currentPath + "\\Models\\skybox\\back.jpg"
+		currentPath + "\\Models\\skybox\\px.png",
+		currentPath + "\\Models\\skybox\\nx.png",
+		currentPath + "\\Models\\skybox\\py.png",
+		currentPath + "\\Models\\skybox\\ny.png",
+		currentPath + "\\Models\\skybox\\pz.png",
+		currentPath + "\\Models\\skybox\\nz.png"
 	};
 
 	// Creates the cubemap texture object
