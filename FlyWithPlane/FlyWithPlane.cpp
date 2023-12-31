@@ -128,6 +128,7 @@ void renderScene(const Shader& shader)
 	renderFloor();
 }
 
+
 int main()
 {
 	// glfw: initialize and configure
@@ -190,10 +191,11 @@ int main()
 
 	Shader lightingShader((currentPath + "\\Shaders\\PhongLight.vs").c_str(), (currentPath + "\\Shaders\\PhongLight.fs").c_str());
 	Shader skyboxShader((currentPath + "\\Shaders\\skybox.vs").c_str(), (currentPath + "\\Shaders\\skybox.fs").c_str());
+	Shader shadowMappingDepthShader((currentPath + "\\Shaders\\ShadowMappingDepth.vs").c_str(), (currentPath + "\\Shaders\\ShadowMappingDepth.fs").c_str());
 
 	// Take care of all the light related things
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 5.0f, 0.5f);
+	glm::vec3 lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
 
 	lightingShader.Use();
 	glUniform4f(glGetUniformLocation(lightingShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -220,6 +222,34 @@ int main()
 	// Creates the cubemap texture object
 	unsigned int cubemapTexture = LoadSkybox(facesCubemap);
 
+	//Creates the floor texture object
+	unsigned int floorTexture = TextureFromFile(currentPath.c_str(), "\\Models\\Floor.png");
+
+	// configure depth map FBO
+	// -----------------------
+	const unsigned int SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+	// create depth texture
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//De la main pana la //render loop
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
 		// per-frame time logic
