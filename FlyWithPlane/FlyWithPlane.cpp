@@ -129,6 +129,8 @@ void renderScene(const Shader& shader)
 }
 
 
+
+
 int main()
 {
 	// glfw: initialize and configure
@@ -223,7 +225,7 @@ int main()
 	unsigned int cubemapTexture = LoadSkybox(facesCubemap);
 
 	//Creates the floor texture object
-	unsigned int floorTexture = TextureFromFile(currentPath.c_str(), "\\Models\\Floor.png");
+	unsigned int floorTexture = TextureFromFile(currentPath + "\\Models\\Floor.png");
 
 	// configure depth map FBO
 	// -----------------------
@@ -248,9 +250,8 @@ int main()
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//De la main pana la //render loop
-		// render loop
+	
+	// render loop
 	while (!glfwWindowShouldClose(window)) {
 		// per-frame time logic
 		double currentFrame = glfwGetTime();
@@ -308,7 +309,7 @@ int main()
 		lightingShader.SetMat4("model", planeModel);
 		PlaneObjModel.Draw(lightingShader);
 		glBindVertexArray(lightVAO);
-
+	
 		//render skybox
 		glDepthFunc(GL_LEQUAL);
 		skyboxShader.Use();

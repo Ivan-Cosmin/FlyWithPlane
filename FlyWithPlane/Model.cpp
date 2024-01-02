@@ -160,7 +160,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
 			Texture texture;
-			texture.id = TextureFromFile(str.C_Str(), this->directory);
+			str = directory + '/' + str.C_Str();
+			texture.id = TextureFromFile(str.C_Str());
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
@@ -193,10 +194,9 @@ unsigned int LoadSkybox(std::vector<std::string> faces)
 	return textureID;
 }
 
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma)
+unsigned int TextureFromFile(const std::string path, bool gamma)
 {
 	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);

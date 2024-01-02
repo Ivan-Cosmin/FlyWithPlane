@@ -152,6 +152,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Models\Plane\Plane.mtl" />
+    <None Include="..\Shaders\PhongLight.fs" />
+    <None Include="..\Shaders\PhongLight.vs" />
+    <None Include="..\Shaders\ShadowMappingDepth.fs" />
+    <None Include="..\Shaders\ShadowMappingDepth.vs" />
+    <None Include="..\Shaders\skybox.fs" />
+    <None Include="..\Shaders\skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
