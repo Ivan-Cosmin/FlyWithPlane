@@ -32,7 +32,7 @@ void Mesh::initMaterials()
 void Mesh::initVAO()
 {
 	//Create VAO
-	glCreateVertexArrays(1, &this->VAO);
+	glGenVertexArrays(1, &this->VAO);
 	glBindVertexArray(this->VAO);
 
 	//Gen VBO and bind and send data
