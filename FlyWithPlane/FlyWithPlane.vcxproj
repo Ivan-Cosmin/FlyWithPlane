@@ -136,10 +136,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FlyWithPlane.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
@@ -147,22 +145,23 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="MTLLoader.h" />
     <ClInclude Include="OBJLoader.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Models\Plane\Plane.mtl" />
-    <None Include="..\Shaders\PhongLight.fs" />
-    <None Include="..\Shaders\PhongLight.vs" />
-    <None Include="..\Shaders\ShadowMappingDepth.fs" />
-    <None Include="..\Shaders\ShadowMappingDepth.vs" />
+    <None Include="..\Shaders\airport.fs" />
+    <None Include="..\Shaders\airport.vs" />
+    <None Include="..\Shaders\default.fs" />
+    <None Include="..\Shaders\default.vs" />
+    <None Include="..\Shaders\Lamp.fs" />
+    <None Include="..\Shaders\Lamp.vs" />
     <None Include="..\Shaders\skybox.fs" />
     <None Include="..\Shaders\skybox.vs" />
+    <None Include="..\Shaders\terrain.fs" />
+    <None Include="..\Shaders\terrain.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

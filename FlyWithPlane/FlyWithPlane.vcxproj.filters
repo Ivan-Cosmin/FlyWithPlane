@@ -13,7 +13,7 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shaders">
+    <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{555de0f4-603f-4898-a56f-aaa484cb204f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -24,13 +24,7 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
@@ -45,12 +39,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -70,26 +58,35 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Models\Plane\Plane.mtl">
-      <Filter>Resource Files</Filter>
+    <None Include="..\Shaders\airport.fs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\Shaders\PhongLight.fs">
-      <Filter>Shaders</Filter>
+    <None Include="..\Shaders\airport.vs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\Shaders\PhongLight.vs">
-      <Filter>Shaders</Filter>
+    <None Include="..\Shaders\default.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\default.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\Lamp.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\Lamp.vs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="..\Shaders\skybox.fs">
-      <Filter>Shaders</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="..\Shaders\skybox.vs">
-      <Filter>Shaders</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\Shaders\ShadowMappingDepth.fs">
-      <Filter>Shaders</Filter>
+    <None Include="..\Shaders\terrain.fs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="..\Shaders\ShadowMappingDepth.vs">
-      <Filter>Shaders</Filter>
+    <None Include="..\Shaders\terrain.vs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

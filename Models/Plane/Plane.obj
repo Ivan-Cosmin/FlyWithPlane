@@ -1,6 +1,6 @@
 # Blender v2.93.5 OBJ File: 'Havion.blend'
 # www.blender.org
-mtllib Avion.mtl
+mtllib Plane.mtl
 o Cylinder_Cylinder.020
 v -0.086261 -0.314436 -2.767178
 v -0.031783 0.058823 -0.003677

@@ -1,25 +1,10 @@
 ﻿#include <Windows.h>
 #include <locale>
 #include <codecvt>
-
-#include <stdlib.h> // necesare pentru citirea shader-elor
-#include <stdio.h>
-#include <math.h> 
-
 #include <GL/glew.h>
-
-#include <GLM.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
-
-#include <glfw3.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include "Model.h"
-#include "Shader.h"
 #include "Camera.h"
+
+#include "TextureLoader.h"
 
 #pragma comment (lib, "glfw3dll.lib")
 #pragma comment (lib, "glew32.lib")
@@ -29,6 +14,66 @@
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1000;
 
+float skylight;
+glm::vec3 lightPos = glm::vec3(3000.0f, 1000.0f, 8000.0f);
+void changeHour(Shader& shader1, Shader& shader2, Shader& shader3, Shader& shader4)
+{
+	static glm::vec3 value(0.6f);
+	skylight = value.x;
+	if (Darker == true)
+	{
+		if (value.x > 0.2f)
+		{
+			value -= glm::vec3(0.05f);
+			shader1.Activate();
+			shader1.SetVec3("lightColor", value);
+			shader2.Activate();
+			shader2.SetVec3("lightColor", value);
+			shader3.Activate();
+			shader3.SetVec3("lightColor", value);
+			shader4.Activate();
+			shader4.SetVec3("lightColor", value);
+
+			if (lightPos.z >= 0)
+				lightPos -= glm::vec3(0.0f, -1000.0f, 2800.0f);
+			else
+				lightPos -= glm::vec3(0.0f, 1000.0f, 1750.0f);
+		}
+		Darker = false;
+	}
+
+	if (Lighter == true)
+	{
+		if (value.x < 0.6f)
+		{
+			value += glm::vec3(0.05f);
+			shader1.Activate();
+			shader1.SetVec3("lightColor", value);
+			shader2.Activate();
+			shader2.SetVec3("lightColor", value);
+			shader3.Activate();
+			shader3.SetVec3("lightColor", value);
+			shader4.Activate();
+			shader4.SetVec3("lightColor", value);
+
+			if (lightPos.z < 0)
+				lightPos += glm::vec3(0.0f, +1000.0f, 2800.0f);
+			else
+				lightPos += glm::vec3(0.0f, -1000.0f, 1750.0f);
+		}
+		Lighter = false;
+	}
+}
+
+std::vector<Mesh> Aeroport;
+unsigned int GrassTex;
+unsigned int RoadTex;
+unsigned int RoofTex;
+unsigned int GrindaTex;
+unsigned int TileTex;
+unsigned int AvionTex;
+unsigned int TurnTex;
+unsigned int CopacTex;
 
 float skyboxVertices[] =
 {
@@ -65,71 +110,158 @@ unsigned int skyboxIndices[] =
 	6, 2, 3
 };
 
+void AeroportInit(std::string path)
+{
+	Mesh AcoperisHangar(path + "AcoperisHangar.obj", path);
+	Aeroport.push_back(AcoperisHangar);
+
+	Mesh Iarba(path + "Iarba.obj", path);
+	Aeroport.push_back(Iarba);
+
+	Mesh InteriorHangar(path + "InteriorHangar.obj", path);
+	Aeroport.push_back(InteriorHangar);
+
+	Mesh MetalHangare(path + "MetalHangare.obj", path);
+	Aeroport.push_back(MetalHangare);
+
+	Mesh Road(path + "Road.obj", path);
+	Aeroport.push_back(Road);
+
+	Mesh TurnBaza(path + "TurnBaza1.obj", path);
+	TurnBaza.setColor(0, glm::vec3(0.85f, 0.85f, 0.85f));
+	Aeroport.push_back(TurnBaza);
+
+	Mesh TurnBazaTexture(path + "TurnBazaTexture.obj", path);
+	Aeroport.push_back(TurnBazaTexture);
+
+	Mesh TurnVarfAlb(path + "TurnVarfAlb.obj", path);
+	TurnVarfAlb.setColor(0, glm::vec3(0.85f, 0.85f, 0.85f));
+	Aeroport.push_back(TurnVarfAlb);
+
+	Mesh TurnVarfNegru(path + "TurnVarfNegru.obj", path);
+	TurnVarfNegru.setColor(0, glm::vec3(0.0f, 0.0f, 0.0f));
+	Aeroport.push_back(TurnVarfNegru);
+
+	Mesh Fundatie(path + "Fundatie.obj", path);
+	Aeroport.push_back(Fundatie);
+
+	Mesh Copaci(path + "FrunzeCopaci.obj", path);
+	Aeroport.push_back(Copaci);
+
+	Mesh PlaneMetal(path + "PlaneMetal.obj", path);
+	Aeroport.push_back(PlaneMetal);
+
+	for (int i = 0; i < Aeroport.size(); i++)
+	{
+		if (i != 1 && i != 4 && i != 9)
+			Aeroport[i].setPosition(glm::vec3(10.f, -7.f, 10.f));
+		else
+			Aeroport[i].setPosition(glm::vec3(10.f, 0.f, 10.f));
+		Aeroport[i].setScale(glm::vec3(10.f));
+		Aeroport[i].initVAO();
+	}
+
+	GrassTex = CreateTexture(path + "Resources\\Sol.jpg");
+	RoadTex = CreateTexture(path + "Resources\\Drum.jpg");
+	RoofTex = CreateTexture(path + "Resources\\Shelter_simple_greenpanel.jpg");
+	TurnTex = CreateTexture(path + "Resources\\tower2.jpg");
+	CopacTex = CreateTexture(path + "Resources\\copac.jpg");
+	AvionTex = CreateTexture(path + "Resources\\avion.jpg");
+	TileTex = CreateTexture(path + "Resources\\Shelter_simple_whitepanel.jpg");
+	GrindaTex = CreateTexture(path + "Resources\\Shelter_simple_frame.bmp");
+}
+
+void AeroportRender(Shader& shaderA, Shader& shaderM, Shader& shaderT)
+{
+	shaderT.Activate();
+	for (int i = 0; i < Aeroport.size(); i++)
+	{
+		if (i == 0)
+		{
+			glBindTexture(GL_TEXTURE_2D, RoofTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 6)
+		{
+			glBindTexture(GL_TEXTURE_2D, TurnTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 2)
+		{
+			glBindTexture(GL_TEXTURE_2D, TileTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 3)
+		{
+			glBindTexture(GL_TEXTURE_2D, GrindaTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 10)
+		{
+			glBindTexture(GL_TEXTURE_2D, CopacTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 11)
+		{
+			glBindTexture(GL_TEXTURE_2D, AvionTex);
+			Aeroport[i].render(&shaderT);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	shaderM.Activate();
+	for (int i = 0; i < Aeroport.size(); i++)
+	{
+		if (i != 1 && i != 4 && i != 0 && i != 6 && i != 2 && i != 3 && i != 9 && i != 10 && i != 11)
+		{
+			Aeroport[i].render(&shaderM);
+		}
+	}
+
+	shaderA.Activate();
+	for (int i = 0; i < Aeroport.size(); i++)
+	{
+		if (i == 1)
+		{
+			glBindTexture(GL_TEXTURE_2D, GrassTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 4)
+		{
+			glBindTexture(GL_TEXTURE_2D, RoadTex);
+			Aeroport[i].render(&shaderT);
+		}
+		if (i == 9)
+		{
+			glBindTexture(GL_TEXTURE_2D, RoadTex);
+			Aeroport[i].render(&shaderT);
+		}
+	}
+}
+
 
 Camera* pCamera = nullptr;
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	pCamera->Reshape(width, height);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yOffset)
+{
+	pCamera->ProcessMouseScroll((float)yOffset);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	pCamera->MouseControl((float)xpos, (float)ypos);
+}
 
 void Cleanup()
 {
 	delete pCamera;
 }
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
-
-// timing
-double deltaTime = 0.0f;	// time between current frame and last frame
-double lastFrame = 0.0f;
-
-// renders the 3D scene
-// --------------------
-unsigned int planeVAO = 0;
-unsigned int planeVBO;
-void renderFloor()
-{
-
-
-	if (planeVAO == 0) {
-		// set up vertex data (and buffer(s)) and configure vertex attributes
-		float planeVertices[] = {
-			// positions            // normals         // texcoords
-			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-			-25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-
-			25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-			-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-			25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
-		};
-		// plane VAO
-		glGenVertexArrays(1, &planeVAO);
-		glGenBuffers(1, &planeVBO);
-		glBindVertexArray(planeVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glBindVertexArray(0);
-	}
-
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-}
-void renderScene(const Shader& shader)
-{
-	// floor
-	glm::mat4 model;
-	shader.SetMat4("model", model);
-	renderFloor();
-}
-
-
-
 
 int main()
 {
@@ -140,7 +272,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lab 7", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "FlyWithPlane", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -148,13 +280,13 @@ int main()
 	}
 
 	glfwMakeContextCurrent(window);
+	glewInit();
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	glewInit();
-
 	glEnable(GL_DEPTH_TEST);
 
 	// Create VAO, VBO, and EBO for the skybox
@@ -174,12 +306,75 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
+	float vertices[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+	};
+	// first, configure the cube's VAO (and VBO)
+	unsigned int cubeVBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindVertexArray(cubeVAO);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	// Create camera
-	pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 3.0));
+	pCamera = new Camera(SCR_WIDTH, SCR_HEIGHT, glm::vec3(0.0, 0.0, 2.0));
 
 
 	wchar_t buffer[MAX_PATH];
@@ -191,130 +386,203 @@ int main()
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	std::string currentPath = converter.to_bytes(wscurrentPath);
 
-	Shader lightingShader((currentPath + "\\Shaders\\PhongLight.vs").c_str(), (currentPath + "\\Shaders\\PhongLight.fs").c_str());
-	Shader skyboxShader((currentPath + "\\Shaders\\skybox.vs").c_str(), (currentPath + "\\Shaders\\skybox.fs").c_str());
-	Shader shadowMappingDepthShader((currentPath + "\\Shaders\\ShadowMappingDepth.vs").c_str(), (currentPath + "\\Shaders\\ShadowMappingDepth.fs").c_str());
+	//Paths
+	std::string ShadersPath = currentPath + "\\Shaders\\";
+	std::string SkyBoxPath = currentPath + "\\Models\\skybox\\";
+	std::string PlanePath = currentPath + "\\Models\\Plane\\";
+	std::string AirportPath = currentPath + "\\Models\\Airport\\";
+	std::string MapPath = currentPath + "\\Models\\Map\\";
+
+
+	//Shaders
+	Shader programShader((ShadersPath + "default.vs").c_str(), (ShadersPath + "default.fs").c_str());
+	Shader skyboxShader((ShadersPath + "skybox.vs").c_str(), (ShadersPath + "skybox.fs").c_str());
+	Shader airportShader((ShadersPath + "airport.vs").c_str(), (ShadersPath + "airport.fs").c_str());
+	Shader lampShader((ShadersPath + "Lamp.vs").c_str(), (ShadersPath + "Lamp.fs").c_str());
+	Shader terrainShader((ShadersPath + "terrain.vs").c_str(), (ShadersPath + "terrain.fs").c_str());
+
 
 	// Take care of all the light related things
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
-
-	lightingShader.Use();
-	glUniform4f(glGetUniformLocation(lightingShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(lightingShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	skyboxShader.Use();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+	glm::vec4 lightColor = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 
 
-	std::string PlaneObjFileName = (currentPath + "\\Models\\Plane\\Plane.obj");
-	Model PlaneObjModel(PlaneObjFileName, false);
+	terrainShader.Activate();
+	terrainShader.SetVec3("lightColor", lightColor);
 
+	Mesh Avion(PlanePath + "Plane.obj", PlanePath);
+	Avion.setPosition(glm::vec3(0.f));
+	Avion.setColor(0, glm::vec3(0.45f, 0.0f, 0.0f));
+	Avion.setColor(1, glm::vec3(0.1f, 0.1f, 0.1f));
+	Avion.setColor(2, glm::vec3(0.5f, 0.5f, 0.5f));
+	Avion.setRotation(glm::vec3(15.0f, 180.0f, 0.f));
+	Avion.setPosition(glm::vec3(0.0f, 1.8f, -1.5f));
+	Avion.initVAO();
+
+	Mesh Map(MapPath + "Map.obj", MapPath);
+	Map.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	Map.setPosition(glm::vec3(1000.0f, -165.0f, -80.0f));
+	Map.initVAO();
 
 	// All the faces of the cubemap (make sure they are in this exact order)
 	std::vector<std::string> facesCubemap =
 	{
-		currentPath + "\\Models\\skybox\\px.png",
-		currentPath + "\\Models\\skybox\\nx.png",
-		currentPath + "\\Models\\skybox\\py.png",
-		currentPath + "\\Models\\skybox\\ny.png",
-		currentPath + "\\Models\\skybox\\pz.png",
-		currentPath + "\\Models\\skybox\\nz.png"
+		SkyBoxPath + "px.png",
+		SkyBoxPath + "nx.png",
+		SkyBoxPath + "py.png",
+		SkyBoxPath + "ny.png",
+		SkyBoxPath + "pz.png",
+		SkyBoxPath + "nz.png"
 	};
 
 	// Creates the cubemap texture object
 	unsigned int cubemapTexture = LoadSkybox(facesCubemap);
+	int floorTexture = CreateTexture(MapPath + "Map.jpg");
+	AeroportInit(AirportPath);
 
-	//Creates the floor texture object
-	unsigned int floorTexture = TextureFromFile(currentPath + "\\Models\\Floor.png");
+	float deltaTime = 0.f;
+	float lastFrame = 0.f;
+	float deltaAltitude = 0.f;
+	bool desprindere = false;
 
-	// configure depth map FBO
-	// -----------------------
-	const unsigned int SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	// create depth texture
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-	// attach depth texture as FBO's depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
 		// per-frame time logic
-		double currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		double FrameStart = glfwGetTime();
+		deltaTime = FrameStart - lastFrame;
+		lastFrame = FrameStart;
 
-		// input
-		processInput(window);
+		float currentAltitude = Avion.getPosition().y;
+		deltaAltitude = (pCamera->speed - 0.5f) * 2.f;
+		float currentTilt = Avion.getRotation().y;
+		//changeHour(shader, terrainShader);
+
+		float clearR = 0.07f + skylight / 2.f - 0.1f;
+		float clearG = 0.13f + skylight / 2.f - 0.1f;
+		float clearB = 0.17 + skylight / 2.f - 0.1f;
+		glClearColor(clearR, clearG, clearB, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (Avion.getPosition().y < 0.0f)
+		{
+			Avion.setPosition(glm::vec3(Avion.getPosition().x, 0.0f, Avion.getPosition().z));
+		}
 
+		if (Avion.getPosition().y > 0.0f)
+		{
+			desprindere = false;
+		}
+		else
+		{
+			desprindere = true;
+		}
 
-		shadowMappingDepthShader.Use();
-		float near_plane = 1.0f, far_plane = 7.5f;
-		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		shadowMappingDepthShader.SetMat4("lightSpaceMatrix", lightProjection * lightView);
+		if (UpPressed == true)
+		{
+			if (pCamera->speed < .5f)
+			{
+				pCamera->speed += 0.0002f;
+			}
+		}
+		else
+			if (DownPressed == true)
+			{
+				if (pCamera->speed > 0.f)
+				{
+					pCamera->speed -= 0.00015f;
+				}
+			}
 
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		renderScene(shadowMappingDepthShader);
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (pCamera->speed > 0.15f)
+		{
+			Avion.setPosition(glm::vec3(Avion.getPosition() + glm::vec3(0.0f, 0.2f, 0.0f)));
+		}
+		else
+			if (pCamera->speed < 0.1f && !desprindere)
+			{
+				if (Avion.getPosition().y > 0.0f)
+				{
+					Avion.setPosition(glm::vec3(Avion.getPosition() + glm::vec3(0.0f, -0.2f, 0.0f)));
+				}
+			}
 
-		// reset viewport
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		float Xrot = 0.0f;
+		float Zrot = 0.0f;
+		if (Avion.getPosition().y > 0.f)
+		{
+			if (pCamera->speed > 0.15f)
+			{
+				Xrot = deltaAltitude * 5.f * glm::cos(glm::radians(Avion.getRotation().y));
+				Zrot = deltaAltitude * 5.f * -glm::sin(glm::radians(Avion.getRotation().y));
+			}
+			else
+			{
+				Xrot = deltaAltitude * 5.f * glm::cos(glm::radians(Avion.getRotation().y));
+				Zrot = deltaAltitude * 5.f * -glm::sin(glm::radians(Avion.getRotation().y));
+			}
+		}
 
+		float angle = glm::abs(Xrot) + glm::abs(Zrot);
+		if (Avion.getRotation().y > 0.f)
+			angle *= 4;
+		else
+			angle /= 2.f;
+		float momentum = glm::abs(glm::cos(glm::radians(angle)));
+		Avion.setPosition(glm::vec3(Avion.getPosition() + glm::vec3(pCamera->speed * momentum * 15.f * glm::sin(glm::radians(Avion.getRotation().y)), 0.0f, pCamera->speed * momentum * 15.f * glm::cos(glm::radians(Avion.getRotation().y)))));
+		Avion.setRotation(glm::vec3(0.f, Avion.getRotation().y, 0.f) + glm::vec3(Xrot, 0.0f, Zrot));
 
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		lightingShader.Use();
-		lightingShader.SetMat4("projection", pCamera->GetProjectionMatrix());
-		lightingShader.SetMat4("view", pCamera->GetViewMatrix());
+		processInput(window, pCamera, deltaTime, &Avion);
+		pCamera->SetPosition(glm::vec3(Avion.getPosition() + glm::vec3(-sin(glm::radians(Avion.getRotation().y + pCamera->offset)) * 50.f, 15.0f, -cos(glm::radians(Avion.getRotation().y + pCamera->offset)) * 50.f)));
+		pCamera->SetPosition(pCamera->GetPosition() + glm::vec3(0.0f, glm::radians((pCamera->frontTilt - 13.f) / 1.5f) * 50.f, 0.0f));
+		pCamera->pitch = -pCamera->frontTilt;
+		pCamera->yaw = -((float)Avion.getRotation().y + (float)pCamera->offset - 90.f);
+		changeHour(terrainShader, skyboxShader, programShader, airportShader);
 
-		lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.SetVec3("lightPos", lightPos);
-		lightingShader.SetMat4("lightSpaceMatrix", lightProjection * lightView);
+		glm::mat4 projection = pCamera->GetProjectionMatrix();
+		glm::mat4 view = pCamera->GetViewMatrix();
+		pCamera->UpdateCameraVectors();
 
+		programShader.Activate();
+		programShader.SetVec3("lightPos", lightPos);
+		programShader.SetVec3("lightColor", glm::vec3(0.6f));
+		programShader.SetVec3("viewPos", pCamera->GetPosition());
 
-		//render floor
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glDisable(GL_CULL_FACE);
+		programShader.SetMat4("projection", projection);
+		programShader.SetMat4("view", view);
+		Avion.render(&programShader);
 
-		//renderScene(lightingShader);
+		lampShader.Activate();
+		lampShader.SetMat4("projection", projection);
+		lampShader.SetMat4("view", view);
+		glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
+		lightModel = glm::scale(lightModel, glm::vec3(300.f)); // a smaller cube
+		lampShader.SetMat4("model", lightModel);
 
-		glm::mat4 planeModel = glm::scale(glm::mat4(1.0), glm::vec3(1.f));
-		lightingShader.SetMat4("model", planeModel);
-		PlaneObjModel.Draw(lightingShader);
 		glBindVertexArray(lightVAO);
-	
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		airportShader.Activate();
+		airportShader.SetVec3("lightPos", lightPos);
+		airportShader.SetVec3("lightColor", glm::vec3(0.6f));
+		airportShader.SetVec3("viewPos", pCamera->GetPosition());
+
+		airportShader.SetMat4("projection", projection);
+		airportShader.SetMat4("view", view);
+		AeroportRender(airportShader, programShader, terrainShader);
+
+		terrainShader.Activate();
+		terrainShader.SetMat4("projection", projection);
+		terrainShader.SetMat4("view", view);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		Map.render(&terrainShader);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 		//render skybox
 		glDepthFunc(GL_LEQUAL);
-		skyboxShader.Use();
-		glm::mat4 view = glm::mat4(glm::mat3(pCamera->GetViewMatrix()));
-		glm::mat4 projection = pCamera->GetProjectionMatrix();
+		skyboxShader.Activate();
+		projection = pCamera->GetProjectionMatrix();
+		view = glm::mat4(glm::mat3(pCamera->GetViewMatrix()));
+		skyboxShader.SetMat4("projection", projection);
+		skyboxShader.SetMat4("view", view);
+
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -323,8 +591,9 @@ int main()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-
 		glDepthFunc(GL_LESS);
+
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -332,51 +601,19 @@ int main()
 
 	Cleanup();
 
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
 	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
+
+	programShader.Delete();
+	skyboxShader.Delete();
+	airportShader.Delete();
+	lampShader.Delete();
+	terrainShader.Delete();
 
 	// glfw: terminate, clearing all previously allocated GLFW resources
 	glfwTerminate();
 	return 0;
-}
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void processInput(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(FORWARD, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(BACKWARD, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(LEFT, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(RIGHT, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(UP, (float)deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		pCamera->ProcessKeyboard(DOWN, (float)deltaTime);
-
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		pCamera->Reset(width, height);
-
-	}
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	pCamera->Reshape(width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	pCamera->MouseControl((float)xpos, (float)ypos);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yOffset)
-{
-	pCamera->ProcessMouseScroll((float)yOffset);
 }
