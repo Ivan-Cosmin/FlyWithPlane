@@ -1,14 +1,14 @@
 #pragma once
 #include <glm.hpp>
 
-#define MAX_BONE_INFLUENCE 4
-
-struct Vertex {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexCoords;
-	glm::vec3 Tangent;
-	glm::vec3 Bitangent;
-	int m_BoneIDs[MAX_BONE_INFLUENCE];
-	float m_Weights[MAX_BONE_INFLUENCE];
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 color;
+	glm::vec2 texcoord;
+	glm::vec3 normal;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	int colorID = -1;
 };
